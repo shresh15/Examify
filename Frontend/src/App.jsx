@@ -1,19 +1,15 @@
-import { useState } from "react";
 import React from "react";
-import Navbar from "./components/Navbar";
-import HeroSection from "./components/HeroSection";
-import AboutSection from "./components/AboutSection";
-import "./App.css";
+import LandingPage from "./pages/LandingPage.jsx";
+
+import { Route, Routes } from "react-router-dom";
+import AuthPage from "./components/Authpage.jsx";
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
-    <>
-      <Navbar />
-      <HeroSection />
-      <AboutSection />
-    </>
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={<AuthPage />} />
+    </Routes>
   );
 }
 
