@@ -122,7 +122,7 @@ const PdfUploader = ({ onQuestionsReady }) => {
       {/* Display a snippet of extracted text and question count */}
       {(extractedText || generatedMcqsCount > 0) && !error && (
         <div className="mt-6 w-full text-left bg-purple-50 p-4 rounded-lg border border-purple-200">
-          {extractedText && (
+          {/* {extractedText && (
             <div>
               <h3 className="text-lg font-semibold text-purple-800 mb-2">
                 Extracted Text Snippet:
@@ -134,7 +134,7 @@ const PdfUploader = ({ onQuestionsReady }) => {
                 </pre>
               </div>
             </div>
-          )}
+          )} */}
 
           {generatedMcqsCount > 0 && (
             <p className="mt-4 text-black font-semibold text-lg text-center">
