@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 // Assuming PdfUploader exists and has its own internal styling
-//import PdfUploader from "../components/PdfUploader"; // adjust path as needed
+import PdfUploader from "../components/PdfUploader"; // adjust path as needed
 import { FiLogOut, FiCheckCircle, FiXCircle } from "react-icons/fi"; // Import React Icons
 
 // Enhanced Message Modal Component (replaces alert() and previous MessageModal logic)
@@ -67,7 +67,7 @@ const MessageModal = ({ message, type, onClose }) => {
 const defaultProfileImage =
   "https://placehold.co/150x150/A78BFA/ffffff?text=Profile";
 
-const Userpage = () => {
+const UserPage = () => {
   const navigate = useNavigate();
   const [showLogoutMenu, setShowLogoutMenu] = useState(false);
   const [generatedQuestions, setGeneratedQuestions] = useState([]);
@@ -187,7 +187,7 @@ const Userpage = () => {
             <div>
               <h2 className="text-2xl font-bold text-white mb-4">Upload PDF</h2>
               <p className="text-sm text-gray-400 mb-2">Max file size: 5MB</p>
-              {/* <PdfUploader onQuestionsReady={handleQuestionsReady} /> */}
+              <PdfUploader onQuestionsReady={handleQuestionsReady} />
               {generatedQuestions.length > 0 && (
                 <p className="mt-4 text-sm text-green-300 font-medium">
                   Questions ready from uploaded file.
@@ -239,4 +239,4 @@ const Userpage = () => {
   );
 };
 
-export default Userpage;
+export default UserPage;
