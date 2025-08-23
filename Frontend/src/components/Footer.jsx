@@ -17,7 +17,7 @@ const Footer = () => {
             className="text-4xl font-extrabold tracking-tight mb-2
                        bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-fuchsia-400"
           >
-            Examify
+            Examify.
           </h4>
           <p className="text-sm text-gray-400 max-w-xs md:text-left">
             Converting pen and paper format to modernize one
