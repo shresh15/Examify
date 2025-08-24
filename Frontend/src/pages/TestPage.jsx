@@ -6,6 +6,9 @@ const TestPage = () => {
     const navigate = useNavigate();
 
     const questions = location.state?.questions || [];
+    // --- FIX START: Read timeDuration from location.state ---
+    const timeDuration = location.state?.timeDuration || 15; // Default to 15 if not found
+    // --- FIX END ---
 
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [userAnswers, setUserAnswers] = useState({});
@@ -13,13 +16,12 @@ const TestPage = () => {
     const [score, setScore] = useState(0);
 
     // --- Clock Feature States ---
-    // Total time for the test in seconds (e.g., 10 minutes * 60 seconds/minute for 10 questions)
-    const initialTime = questions.length * 60; // 1 minute per question as a default
-    const [timeLeft, setTimeLeft] = useState(initialTime);
-    const [timerActive, setTimerActive] = useState(true); // Control if the timer is running
-    const timerRef = useRef(null); // Ref to hold the interval ID
+    // Calculate initial time in seconds based on the passed timeDuration prop
+    const initialTimeInSeconds = timeDuration * 60;
+    const [timeLeft, setTimeLeft] = useState(initialTimeInSeconds);
+    const [timerActive, setTimerActive] = useState(true);
+    const timerRef = useRef(null);
 
-    // Effect to navigate back if no questions are found
     useEffect(() => {
         if (questions.length === 0) {
             alert("No questions found for the test. Please upload a PDF to generate questions.");
@@ -27,36 +29,31 @@ const TestPage = () => {
         }
     }, [questions, navigate]);
 
-    // Effect to manage the countdown timer
     useEffect(() => {
         if (timerActive && timeLeft > 0 && !showResults) {
             timerRef.current = setInterval(() => {
                 setTimeLeft((prevTime) => prevTime - 1);
             }, 1000);
         } else if (timeLeft === 0 && timerActive) {
-            // Time's up! Automatically submit the test
             clearInterval(timerRef.current);
             setTimerActive(false);
-            handleSubmitTest(); // Automatically submit
+            handleSubmitTest();
             alert("Time's up! Your test has been submitted automatically.");
         }
 
-        // Cleanup function to clear the interval when component unmounts or timer becomes inactive
         return () => {
             if (timerRef.current) {
                 clearInterval(timerRef.current);
             }
         };
-    }, [timeLeft, timerActive, showResults]); // Dependencies: timeLeft, timerActive, showResults
+    }, [timeLeft, timerActive, showResults]);
 
-    // Reset timer on retake
     useEffect(() => {
-        if (!timerActive && !showResults) { // Timer inactive and results not shown (implies retake scenario)
-            setTimeLeft(initialTime);
+        if (!timerActive && !showResults) {
+            setTimeLeft(initialTimeInSeconds); // Use the correct variable here
             setTimerActive(true);
         }
-    }, [timerActive, showResults, initialTime]);
-
+    }, [timerActive, showResults, initialTimeInSeconds]);
 
     if (questions.length === 0) {
         return (
@@ -88,8 +85,8 @@ const TestPage = () => {
     };
 
     const handleSubmitTest = () => {
-        clearInterval(timerRef.current); // Stop the timer
-        setTimerActive(false); // Mark timer as inactive
+        clearInterval(timerRef.current);
+        setTimerActive(false);
 
         let correctCount = 0;
         questions.forEach((q, index) => {
@@ -99,7 +96,7 @@ const TestPage = () => {
             }
         });
         setScore(correctCount);
-        setShowResults(true); // Display the results section
+        setShowResults(true);
     };
 
     const handleRetakeTest = () => {
@@ -107,13 +104,12 @@ const TestPage = () => {
         setUserAnswers({});
         setScore(0);
         setShowResults(false);
-        setTimeLeft(initialTime); // Reset time for retake
-        setTimerActive(true); // Restart timer for retake
+        setTimeLeft(initialTimeInSeconds); // Use the correct variable
+        setTimerActive(true);
     };
 
-    const getOptionLetter = (index) => String.fromCharCode(65 + index); // ASCII for 'A' is 65
+    const getOptionLetter = (index) => String.fromCharCode(65 + index);
 
-    // Format time for display
     const formatTime = (seconds) => {
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = seconds % 60;
@@ -126,19 +122,14 @@ const TestPage = () => {
                 <h1 className="text-4xl font-extrabold text-purple-800 mb-6 text-center">
                     Test Your Knowledge
                 </h1>
-
                 {!showResults ? (
-                    /* Test Questions Section */
                     <div className="space-y-6">
-                        {/* Clock Display */}
                         <div className={`text-center text-2xl font-bold mb-4 p-2 rounded-lg ${timeLeft <= 30 ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-blue-100 text-blue-600'}`}>
                             Time Left: {formatTime(timeLeft)}
                         </div>
-
                         <div className="text-center text-lg text-gray-600 mb-4">
                             Question {currentQuestionIndex + 1} of {questions.length}
                         </div>
-
                         <div className="bg-purple-50 p-6 rounded-lg border border-purple-200 shadow-sm">
                             <h2 className="text-xl md:text-2xl font-bold text-purple-700 mb-4 leading-relaxed">
                                 Q{currentQuestionIndex + 1}: {currentQuestion.question}
@@ -152,10 +143,7 @@ const TestPage = () => {
                                             key={index}
                                             onClick={() => handleOptionSelect(optionLetter)}
                                             className={`w-full text-left py-3 px-5 rounded-lg border-2 transition duration-200 ease-in-out
-                        ${isSelected
-                                                    ? "bg-purple-600 text-white border-purple-700 shadow-md transform scale-[1.01]"
-                                                    : "bg-white text-gray-800 border-gray-300 hover:border-purple-500 hover:bg-purple-50"
-                                                } focus:outline-none focus:ring-2 focus:ring-purple-400`}
+                                            ${isSelected ? "bg-purple-600 text-white border-purple-700 shadow-md transform scale-[1.01]" : "bg-white text-gray-800 border-gray-300 hover:border-purple-500 hover:bg-purple-50"} focus:outline-none focus:ring-2 focus:ring-purple-400`}
                                         >
                                             <span className="font-semibold mr-3">{optionLetter}.</span> {option}
                                         </button>
@@ -163,21 +151,14 @@ const TestPage = () => {
                                 })}
                             </div>
                         </div>
-
-                        {/* Navigation Buttons */}
                         <div className="flex justify-between items-center mt-8">
                             <button
                                 onClick={handlePreviousQuestion}
                                 disabled={currentQuestionIndex === 0}
-                                className={`py-3 px-6 rounded-full font-semibold transition duration-300 ease-in-out shadow-md
-                  ${currentQuestionIndex === 0
-                                        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                                        : "bg-indigo-500 hover:bg-indigo-600 text-white transform hover:scale-105"
-                                    }`}
+                                className={`py-3 px-6 rounded-full font-semibold transition duration-300 ease-in-out shadow-md ${currentQuestionIndex === 0 ? "bg-gray-300 text-gray-600 cursor-not-allowed" : "bg-indigo-500 hover:bg-indigo-600 text-white transform hover:scale-105"}`}
                             >
                                 Previous
                             </button>
-
                             {currentQuestionIndex === questions.length - 1 ? (
                                 <button
                                     onClick={handleSubmitTest}
@@ -196,26 +177,19 @@ const TestPage = () => {
                         </div>
                     </div>
                 ) : (
-                    /* Results Section */
                     <div className="text-center space-y-6">
                         <h2 className="text-3xl font-bold text-purple-700 mb-4">Test Results</h2>
                         <p className="text-2xl text-gray-800">
                             You scored: <span className="font-extrabold text-green-600">{score}</span> out of{" "}
                             <span className="font-extrabold text-purple-700">{questions.length}</span>
                         </p>
-
                         <div className="space-y-4 text-left border border-gray-200 rounded-lg p-6 bg-gray-50 max-h-96 overflow-y-auto">
                             <h3 className="text-xl font-bold text-gray-700 mb-3">Your Answers:</h3>
                             {questions.map((q, index) => {
                                 const userAnswer = userAnswers[index];
                                 const isCorrect = userAnswer && userAnswer.toUpperCase() === q.correct_answer.toUpperCase();
-                                // Find the actual text of the selected option
                                 const selectedOptionText = q.options[q.options.findIndex((opt, i) => getOptionLetter(i) === userAnswer)];
-
-                                // Find the actual text of the correct option
                                 const correctOptionText = q.options[q.options.findIndex((opt, i) => getOptionLetter(i) === q.correct_answer)];
-
-
                                 return (
                                     <div key={index} className={`p-4 rounded-lg shadow-sm border ${isCorrect ? "border-green-300 bg-green-50" : "border-red-300 bg-red-50"}`}>
                                         <p className="font-semibold text-gray-900 mb-1">Q{index + 1}: {q.question}</p>
@@ -235,8 +209,6 @@ const TestPage = () => {
                                 );
                             })}
                         </div>
-
-                        {/* Result Actions */}
                         <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4 mt-8">
                             <button
                                 onClick={handleRetakeTest}

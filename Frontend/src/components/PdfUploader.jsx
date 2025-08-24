@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { FiUploadCloud, FiRefreshCw, FiFile, FiXCircle } from "react-icons/fi";
 
-const PdfUploader = ({ onQuestionsReady }) => {
+const PdfUploader = ({ onQuestionsReady, numQuestions, timeDuration, difficulty }) => {
   const [file, setFile] = useState(null);
   const [extractedText, setExtractedText] = useState("");
   const [error, setError] = useState("");
@@ -29,39 +30,37 @@ const PdfUploader = ({ onQuestionsReady }) => {
     setGeneratedMcqsCount(0);
 
     const formData = new FormData();
-    formData.append("pdf", file); // 'pdf' should match the name expected by multer on the backend
+    formData.append("pdf", file);
+    formData.append("numQuestions", numQuestions);
+    // --- THIS IS THE CRITICAL LINE TO VERIFY ---
+    formData.append("timeDuration", timeDuration);
+    formData.append("difficulty", difficulty);
 
     try {
-      // Send the PDF file to the backend
-      // The backend (server.js) is expected to return { success: true, text: "...", questions: [...] }
       const response = await axios.post(
         "http://localhost:8000/api/upload-pdf",
         formData,
         {
-          headers: { "Content-Type": "multipart/form-data" }, // Important for file uploads
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
 
-      // Handle successful response from backend
-      setExtractedText(response.data.text || ""); // Store extracted text
-      const questions = response.data.questions || []; // Get the questions array
-      setGeneratedMcqsCount(questions.length); // Update the count for display
+      setExtractedText(response.data.text || "");
+      const questions = response.data.questions || [];
+      setGeneratedMcqsCount(questions.length);
 
-      // Call the onQuestionsReady prop to pass the questions to the parent component (UserPage)
       if (onQuestionsReady) {
         onQuestionsReady(questions);
       }
     } catch (err) {
-      // Handle errors during the upload or processing
       console.error("PDF upload or question generation error:", err);
       setError(
-        err.response?.data?.error ||
-          "Error uploading file or generating questions."
+        err.response?.data?.error || "Error uploading file or generating questions."
       );
-      setExtractedText(""); // Clear text on error
-      setGeneratedMcqsCount(0); // Reset question count on error
+      setExtractedText("");
+      setGeneratedMcqsCount(0);
     } finally {
-      setLoading(false); // Set loading to false once the process is complete (success or error)
+      setLoading(false);
     }
   };
 
@@ -84,8 +83,8 @@ const PdfUploader = ({ onQuestionsReady }) => {
             type="file"
             accept="application/pdf"
             onChange={handleFileChange}
-            disabled={loading} // Disable input when loading
-            className="hidden" // Hide the default file input
+            disabled={loading}
+            className="hidden"
           />
           {file ? (
             <p className="text-purple-700 font-medium break-words">
@@ -97,19 +96,15 @@ const PdfUploader = ({ onQuestionsReady }) => {
               <span className="text-purple-600 font-medium">Browse</span>
             </p>
           )}
-          {/* <p className="text-sm text-gray-400 mt-2">
-            Max file size: 10MB (approx)
-          </p> */}
         </label>
 
         <button
           type="submit"
-          disabled={loading || !file} // Disable button if loading or no file selected
-          className={`w-full py-3 px-6 rounded-lg text-white font-semibold transition duration-300 ease-in-out ${
-            loading || !file
+          disabled={loading || !file}
+          className={`w-full py-3 px-6 rounded-lg text-white font-semibold transition duration-300 ease-in-out ${loading || !file
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-purple-500 hover:bg-purple-700 shadow-md"
-          }`}
+            }`}
         >
           {loading ? "Processing PDF..." : "Upload & Generate Test"}
         </button>
@@ -119,23 +114,8 @@ const PdfUploader = ({ onQuestionsReady }) => {
         <p className="mt-4 text-red-600 font-medium text-center">{error}</p>
       )}
 
-      {/* Display a snippet of extracted text and question count */}
       {(extractedText || generatedMcqsCount > 0) && !error && (
         <div className="mt-6 w-full text-left bg-purple-50 p-4 rounded-lg border border-purple-200">
-          {/* {extractedText && (
-            <div>
-              <h3 className="text-lg font-semibold text-purple-800 mb-2">
-                Extracted Text Snippet:
-              </h3>
-              <div className="bg-white p-3 rounded-md border border-gray-200 text-sm text-gray-700 overflow-auto max-h-40">
-                <pre className="whitespace-pre-wrap font-sans">
-                  {extractedText.substring(0, 500)}
-                  {extractedText.length > 500 ? "..." : ""}
-                </pre>
-              </div>
-            </div>
-          )} */}
-
           {generatedMcqsCount > 0 && (
             <p className="mt-4 text-black font-semibold text-lg text-center">
               {generatedMcqsCount} MCQs Generated

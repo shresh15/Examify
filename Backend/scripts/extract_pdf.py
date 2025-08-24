@@ -41,7 +41,8 @@ def preprocess_question_text(text):
     return " ".join(tokens)
 
 # Function to generate MCQ questions using the Gemini API
-def generate_mcqs_from_text(text_content):
+# --- CHANGE: Added num_questions parameter ---
+def generate_mcqs_from_text(text_content, num_questions):
     api_key = os.getenv("GEMINI_API_KEY", "")
     if not api_key:
         print("ERROR: GEMINI_API_KEY environment variable not set.", file=sys.stderr)
@@ -49,8 +50,9 @@ def generate_mcqs_from_text(text_content):
 
     api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
 
+    # --- CHANGE: Dynamic number of questions in the prompt ---
     prompt = (
-        f"Generate 10 multiple-choice questions (MCQs) from the following text. "
+        f"Generate {num_questions} multiple-choice questions (MCQs) from the following text. "
         f"Each question should have 4 options (A, B, C, D) and specify the correct answer letter. "
         f"Ensure questions are clear, concise, and directly related to the text. "
         f"Return the output as a JSON array of objects, each with 'question', 'options' (array of strings), and 'correct_answer' (string: 'A', 'B', 'C', or 'D').\n\n"
@@ -119,6 +121,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     pdf_path = sys.argv[1]
+    # --- CHANGE: Get num_questions from command line, default to 10 ---
+    num_questions = int(sys.argv[2]) if len(sys.argv) > 2 else 10
+    
     full_output = {}
 
     # Step 1: Extract text from the PDF
@@ -152,7 +157,8 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # Step 5: Generate MCQs using Gemini API
-    generated_mcqs = generate_mcqs_from_text(text_for_gemini)
+    # --- CHANGE: Pass num_questions to the function call ---
+    generated_mcqs = generate_mcqs_from_text(text_for_gemini, num_questions)
 
     # Handling the API response
     full_output["error"] = ""
@@ -160,7 +166,8 @@ if __name__ == "__main__":
         full_output["questions"] = []
         full_output["error"] = generated_mcqs["error"]
     elif isinstance(generated_mcqs, list):
-        full_output["questions"] = generated_mcqs
+        # --- CHANGE: Slice the list to ensure the requested number of questions is returned ---
+        full_output["questions"] = generated_mcqs[:num_questions]
     else:
         full_output["questions"] = []
         full_output["error"] = "Unknown error: Unexpected Gemini API response format."
