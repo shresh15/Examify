@@ -6,17 +6,13 @@ const TestPage = () => {
     const navigate = useNavigate();
 
     const questions = location.state?.questions || [];
-    // --- FIX START: Read timeDuration from location.state ---
-    const timeDuration = location.state?.timeDuration || 15; // Default to 15 if not found
-    // --- FIX END ---
+    const timeDuration = location.state?.timeDuration || 15;
 
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [userAnswers, setUserAnswers] = useState({});
     const [showResults, setShowResults] = useState(false);
     const [score, setScore] = useState(0);
 
-    // --- Clock Feature States ---
-    // Calculate initial time in seconds based on the passed timeDuration prop
     const initialTimeInSeconds = timeDuration * 60;
     const [timeLeft, setTimeLeft] = useState(initialTimeInSeconds);
     const [timerActive, setTimerActive] = useState(true);
@@ -50,7 +46,7 @@ const TestPage = () => {
 
     useEffect(() => {
         if (!timerActive && !showResults) {
-            setTimeLeft(initialTimeInSeconds); // Use the correct variable here
+            setTimeLeft(initialTimeInSeconds);
             setTimerActive(true);
         }
     }, [timerActive, showResults, initialTimeInSeconds]);
@@ -95,17 +91,18 @@ const TestPage = () => {
                 correctCount++;
             }
         });
-        setScore(correctCount);
-        setShowResults(true);
-    };
 
-    const handleRetakeTest = () => {
-        setCurrentQuestionIndex(0);
-        setUserAnswers({});
-        setScore(0);
-        setShowResults(false);
-        setTimeLeft(initialTimeInSeconds); // Use the correct variable
-        setTimerActive(true);
+        const timeTakenInSeconds = initialTimeInSeconds - timeLeft;
+
+        navigate('/result', {
+            state: {
+                questions,
+                userAnswers,
+                score: correctCount,
+                timeDuration,
+                timeTakenInSeconds,
+            },
+        });
     };
 
     const getOptionLetter = (index) => String.fromCharCode(65 + index);
@@ -176,55 +173,7 @@ const TestPage = () => {
                             )}
                         </div>
                     </div>
-                ) : (
-                    <div className="text-center space-y-6">
-                        <h2 className="text-3xl font-bold text-purple-700 mb-4">Test Results</h2>
-                        <p className="text-2xl text-gray-800">
-                            You scored: <span className="font-extrabold text-green-600">{score}</span> out of{" "}
-                            <span className="font-extrabold text-purple-700">{questions.length}</span>
-                        </p>
-                        <div className="space-y-4 text-left border border-gray-200 rounded-lg p-6 bg-gray-50 max-h-96 overflow-y-auto">
-                            <h3 className="text-xl font-bold text-gray-700 mb-3">Your Answers:</h3>
-                            {questions.map((q, index) => {
-                                const userAnswer = userAnswers[index];
-                                const isCorrect = userAnswer && userAnswer.toUpperCase() === q.correct_answer.toUpperCase();
-                                const selectedOptionText = q.options[q.options.findIndex((opt, i) => getOptionLetter(i) === userAnswer)];
-                                const correctOptionText = q.options[q.options.findIndex((opt, i) => getOptionLetter(i) === q.correct_answer)];
-                                return (
-                                    <div key={index} className={`p-4 rounded-lg shadow-sm border ${isCorrect ? "border-green-300 bg-green-50" : "border-red-300 bg-red-50"}`}>
-                                        <p className="font-semibold text-gray-900 mb-1">Q{index + 1}: {q.question}</p>
-                                        <p className="text-gray-700 text-sm">
-                                            Your answer:{" "}
-                                            <span className={`font-medium ${isCorrect ? "text-green-700" : "text-red-700"}`}>
-                                                {userAnswer ? `${userAnswer}. ${selectedOptionText}` : "No answer selected"}
-                                            </span>
-                                        </p>
-                                        <p className="text-gray-700 text-sm">
-                                            Correct answer:{" "}
-                                            <span className="font-medium text-green-700">
-                                                {q.correct_answer}. {correctOptionText}
-                                            </span>
-                                        </p>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                        <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4 mt-8">
-                            <button
-                                onClick={handleRetakeTest}
-                                className="py-3 px-8 rounded-full font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-blue-300"
-                            >
-                                Retake Test
-                            </button>
-                            <button
-                                onClick={() => navigate("/userpage")}
-                                className="py-3 px-8 rounded-full font-bold bg-gray-600 hover:bg-gray-700 text-white shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-gray-300"
-                            >
-                                Go Back to Upload
-                            </button>
-                        </div>
-                    </div>
-                )}
+                ) : null}
             </div>
         </div>
     );

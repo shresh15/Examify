@@ -5,6 +5,7 @@ import UserPage from "./pages/Userpage.jsx";
 import { Route, Routes } from "react-router-dom";
 import AuthPage from "./components/Authpage.jsx";
 import TestPage from "./pages/TestPage.jsx";
+import ResultPage from "./pages/ResultPage.jsx";
 function App() {
   return (
     <Routes>
@@ -12,6 +13,7 @@ function App() {
       <Route path="/login" element={<AuthPage />} />
       <Route path="/userpage" element={<UserPage />} />
       <Route path="/test" element={<TestPage />} />
+      <Route path="/result" element={<ResultPage />} />
     </Routes>
   );
 }
