@@ -6,6 +6,7 @@ import { Route, Routes } from "react-router-dom";
 import AuthPage from "./components/Authpage.jsx";
 import TestPage from "./pages/TestPage.jsx";
 import ResultPage from "./pages/ResultPage.jsx";
+import TrackRecordsPage from "./pages/TrackRecordsPage.jsx";
 function App() {
   return (
     <Routes>
@@ -14,6 +15,7 @@ function App() {
       <Route path="/userpage" element={<UserPage />} />
       <Route path="/test" element={<TestPage />} />
       <Route path="/result" element={<ResultPage />} />
+      <Route path="/track-records" element={<TrackRecordsPage />} />
     </Routes>
   );
 }

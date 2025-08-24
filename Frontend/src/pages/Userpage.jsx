@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PdfUploader from "../components/PdfUploader";
-import { FiLogOut, FiCheckCircle, FiXCircle } from "react-icons/fi";
+import { FiLogOut, FiCheckCircle, FiXCircle, FiList } from "react-icons/fi"; // 💡 Added FiList icon
 
 // Enhanced Message Modal Component
 const MessageModal = ({ message, type, onClose }) => {
@@ -40,13 +40,12 @@ const MessageModal = ({ message, type, onClose }) => {
       <div className="absolute inset-0 bg-black opacity-60"></div>
       <div
         className={`relative ${bgColor} ${textColor} p-8 rounded-lg shadow-2xl border-b-4 ${borderColor}
-                      transform transition-all duration-300 ease-in-out
-                      ${
-                        isVisible
-                          ? "scale-100 opacity-100"
-                          : "scale-90 opacity-0"
-                      }
-                      flex flex-col items-center max-w-sm text-center`}
+                     transform transition-all duration-300 ease-in-out
+                     ${isVisible
+            ? "scale-100 opacity-100"
+            : "scale-90 opacity-0"
+          }
+                     flex flex-col items-center max-w-sm text-center`}
       >
         {icon}
         <p className="text-xl font-semibold mt-4 mb-4">{message}</p>
@@ -139,6 +138,11 @@ const UserPage = () => {
     }
   };
 
+  // 💡 New function to navigate to the track records page
+  const goToTrackRecords = () => {
+    navigate("/track-records");
+  };
+
   return (
     <div
       className="min-h-screen relative flex flex-col
@@ -152,8 +156,8 @@ const UserPage = () => {
 
       <nav
         className="sticky top-0 z-50 w-full flex justify-between items-center px-6 md:px-12 py-4 h-20
-                      bg-gradient-to-r from-gray-950 via-indigo-950 to-black shadow-xl
-                      backdrop-blur-md bg-opacity-80 dark:bg-opacity-80"
+                    bg-gradient-to-r from-gray-950 via-indigo-950 to-black shadow-xl
+                    backdrop-blur-md bg-opacity-80 dark:bg-opacity-80"
       >
         <span
           className="text-3xl md:text-4xl font-extrabold tracking-tight
@@ -162,7 +166,17 @@ const UserPage = () => {
           Examify
         </span>
 
-        <div className="relative profile-menu-container">
+        <div className="flex items-center space-x-4 relative profile-menu-container">
+          {/* 💡 The new "Track Records" button */}
+          <button
+            onClick={goToTrackRecords}
+            className="hidden sm:inline-flex items-center px-4 py-2 text-md font-semibold text-white bg-gray-800 rounded-full
+                       hover:bg-gray-700 transition duration-300 ease-in-out"
+          >
+            <FiList className="mr-2" />
+            Track Records
+          </button>
+
           <img
             src={profileImage || defaultProfileImage}
             alt="Profile"
@@ -170,7 +184,7 @@ const UserPage = () => {
             onClick={toggleLogoutMenu}
           />
           {showLogoutMenu && (
-            <div className="absolute right-0 mt-3 w-44 bg-gray-800 rounded-lg shadow-xl py-2 z-10 animate-fade-in-down border border-gray-700">
+            <div className="absolute top-16 right-0 mt-3 w-44 bg-gray-800 rounded-lg shadow-xl py-2 z-10 animate-fade-in-down border border-gray-700">
               <button
                 onClick={handleLogout}
                 className="block w-full text-left px-5 py-2 text-md text-white hover:bg-gray-700 hover:text-fuchsia-400 transition duration-200 rounded-md flex items-center"
@@ -272,9 +286,9 @@ const UserPage = () => {
               <button
                 onClick={startTest}
                 className="group relative inline-flex items-center justify-center mt-6 px-8 py-3 rounded-full text-lg font-semibold tracking-wide
-                          bg-gradient-to-r from-indigo-800 to-purple-600 text-white shadow-xl overflow-hidden
-                          transform hover:scale-105 hover:-translate-y-1 transition-all duration-300 ease-in-out
-                          focus:outline-none focus:ring-4 focus:ring-purple-500/50"
+                           bg-gradient-to-r from-indigo-800 to-purple-600 text-white shadow-xl overflow-hidden
+                           transform hover:scale-105 hover:-translate-y-1 transition-all duration-300 ease-in-out
+                           focus:outline-none focus:ring-4 focus:ring-purple-500/50"
               >
                 <span className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-800 to-purple-800 opacity-0 group-hover:opacity-100 transition-opacity duration-500 filter blur-lg animate-pulse-glow"></span>
                 <span className="relative z-10">
@@ -291,10 +305,10 @@ const UserPage = () => {
             <div className="h-full max-h-[500px] overflow-y-auto text-sm text-gray-300 whitespace-pre-wrap">
               {generatedQuestions.length > 0
                 ? generatedQuestions.map((q, idx) => (
-                    <div key={idx} className="mb-4">
-                      <strong>Q{idx + 1}:</strong> {q.question}
-                    </div>
-                  ))
+                  <div key={idx} className="mb-4">
+                    <strong>Q{idx + 1}:</strong> {q.question}
+                  </div>
+                ))
                 : "Upload a PDF to view extracted text."}
             </div>
           </div>
