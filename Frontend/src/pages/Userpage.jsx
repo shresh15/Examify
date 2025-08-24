@@ -6,6 +6,7 @@ import { FiLogOut, FiCheckCircle, FiXCircle } from "react-icons/fi"; // Import R
 
 // Enhanced Message Modal Component (replaces alert() and previous MessageModal logic)
 // Re-using the same MessageModal component from AuthPage for consistency
+
 const MessageModal = ({ message, type, onClose }) => {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -46,9 +47,8 @@ const MessageModal = ({ message, type, onClose }) => {
       <div
         className={`relative ${bgColor} ${textColor} p-8 rounded-lg shadow-2xl border-b-4 ${borderColor}
                     transform transition-all duration-300 ease-in-out
-                    ${
-                      isVisible ? "scale-100 opacity-100" : "scale-90 opacity-0"
-                    }
+                    ${isVisible ? "scale-100 opacity-100" : "scale-90 opacity-0"
+          }
                     flex flex-col items-center max-w-sm text-center`}
       >
         {icon}
@@ -219,10 +219,10 @@ const UserPage = () => {
             <div className="h-full max-h-[500px] overflow-y-auto text-sm text-gray-300 whitespace-pre-wrap">
               {generatedQuestions.length > 0
                 ? generatedQuestions.map((q, idx) => (
-                    <div key={idx} className="mb-4">
-                      <strong>Q{idx + 1}:</strong> {q.question}
-                    </div>
-                  ))
+                  <div key={idx} className="mb-4">
+                    <strong>Q{idx + 1}:</strong> {q.question}
+                  </div>
+                ))
                 : "Upload a PDF to view extracted text."}
             </div>
           </div>
