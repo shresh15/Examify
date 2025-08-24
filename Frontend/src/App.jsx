@@ -3,7 +3,7 @@ import React from "react";
 import LandingPage from "./pages/LandingPage.jsx";
 import UserPage from "./pages/Userpage.jsx";
 import { Route, Routes } from "react-router-dom";
-import AuthPage from "./components/Authpage.jsx";
+import AuthPage from "./components/Authpage.jsx"; // auth page
 import TestPage from "./pages/TestPage.jsx";
 import ResultPage from "./pages/ResultPage.jsx";
 import TrackRecordsPage from "./pages/TrackRecordsPage.jsx";
