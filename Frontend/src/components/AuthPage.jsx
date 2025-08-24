@@ -254,13 +254,13 @@ function AuthPage() {
       const result = await res.json();
       if (result.secure_url) {
         setFormData((prev) => ({ ...prev, image: result.secure_url }));
-        showToast("Profile image uploaded successfully!", "success");
+        window.alert(`Profile image uploaded successfully!`);
       } else {
-        showToast("Image upload failed. Please try again.", "error");
+        window.alert(`Image upload failed. Please try again.`);
       }
     } catch (err) {
       console.error("Image upload error:", err);
-      showToast("Image upload failed: " + err.message, "error");
+      window.alert(`Image upload failed: ` + err.message);
     } finally {
       setLoadingImage(false);
     }
@@ -275,7 +275,7 @@ function AuthPage() {
       !formData.password ||
       (!isLogin && (!formData.name || !formData.phone))
     ) {
-      showToast("Please fill in all required fields.", "warning");
+      window.alert(`Please fill in all required fields.`);
       return;
     }
 
@@ -288,9 +288,8 @@ function AuthPage() {
         : "http://localhost:8000/api/auth/register";
 
       const response = await axios.post(endpoint, formData);
-      showToast(
-        `${isLogin ? "Login" : "Signup"} successful! Redirecting...`,
-        "success"
+      window.alert(
+        `${isLogin ? "Login" : "Signup"} successful! Redirecting...`
       );
 
       // Assuming your backend sends a token and user data
@@ -301,12 +300,11 @@ function AuthPage() {
       setTimeout(() => navigate("/userpage"), 1500);
     } catch (error) {
       console.error("Auth error:", error);
-      showToast(
+      window.alert(
         "Error: " +
           (error.response?.data?.message ||
             error.message ||
-            "Something went wrong."),
-        "error"
+            "Something went wrong.")
       );
     } finally {
       setSubmittingForm(false);

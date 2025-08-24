@@ -41,7 +41,11 @@ const MessageModal = ({ message, type, onClose }) => {
       <div
         className={`relative ${bgColor} ${textColor} p-8 rounded-lg shadow-2xl border-b-4 ${borderColor}
                       transform transition-all duration-300 ease-in-out
-                      ${isVisible ? "scale-100 opacity-100" : "scale-90 opacity-0"}
+                      ${
+                        isVisible
+                          ? "scale-100 opacity-100"
+                          : "scale-90 opacity-0"
+                      }
                       flex flex-col items-center max-w-sm text-center`}
       >
         {icon}
@@ -107,14 +111,12 @@ const UserPage = () => {
     setGeneratedQuestions(questionsArray);
     console.log("Questions received in UserPage:", questionsArray);
     if (questionsArray.length > 0) {
-      showMessage(
-        `Successfully generated ${questionsArray.length} questions!`,
-        "success"
+      window.alert(
+        `✅ Successfully generated ${questionsArray.length} questions!`
       );
     } else {
-      showMessage(
-        "No questions could be generated from the PDF. Please try a different document.",
-        "error"
+      window.alert(
+        "❌ No questions could be generated from the PDF. Please try a different document."
       );
     }
   };
@@ -129,7 +131,6 @@ const UserPage = () => {
           difficulty,
         },
       });
-
     } else {
       showMessage(
         "No questions available to start the test. Please upload a PDF first.",
@@ -137,8 +138,6 @@ const UserPage = () => {
       );
     }
   };
-
-
 
   return (
     <div
@@ -191,10 +190,15 @@ const UserPage = () => {
               <p className="text-sm text-gray-400 mb-2">Max file size: 5MB</p>
 
               <div className="mb-6">
-                <h3 className="text-xl font-bold text-white mb-4">Quiz Settings</h3>
+                <h3 className="text-xl font-bold text-white mb-4">
+                  Quiz Settings
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="relative">
-                    <label htmlFor="numQuestions" className="block text-sm font-medium text-gray-400">
+                    <label
+                      htmlFor="numQuestions"
+                      className="block text-sm font-medium text-gray-400"
+                    >
                       Questions
                     </label>
                     <select
@@ -210,7 +214,10 @@ const UserPage = () => {
                   </div>
 
                   <div className="relative">
-                    <label htmlFor="timeDuration" className="block text-sm font-medium text-gray-400">
+                    <label
+                      htmlFor="timeDuration"
+                      className="block text-sm font-medium text-gray-400"
+                    >
                       Time
                     </label>
                     <select
@@ -227,7 +234,10 @@ const UserPage = () => {
                   </div>
 
                   <div className="relative">
-                    <label htmlFor="difficulty" className="block text-sm font-medium text-gray-400">
+                    <label
+                      htmlFor="difficulty"
+                      className="block text-sm font-medium text-gray-400"
+                    >
                       Difficulty
                     </label>
                     <select
@@ -281,10 +291,10 @@ const UserPage = () => {
             <div className="h-full max-h-[500px] overflow-y-auto text-sm text-gray-300 whitespace-pre-wrap">
               {generatedQuestions.length > 0
                 ? generatedQuestions.map((q, idx) => (
-                  <div key={idx} className="mb-4">
-                    <strong>Q{idx + 1}:</strong> {q.question}
-                  </div>
-                ))
+                    <div key={idx} className="mb-4">
+                      <strong>Q{idx + 1}:</strong> {q.question}
+                    </div>
+                  ))
                 : "Upload a PDF to view extracted text."}
             </div>
           </div>
