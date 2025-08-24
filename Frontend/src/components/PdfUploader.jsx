@@ -43,7 +43,7 @@ const PdfUploader = ({
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/upload-pdf",
+        "https://examify-hfzs.onrender.com/api/upload-pdf",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

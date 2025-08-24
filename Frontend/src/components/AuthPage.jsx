@@ -282,10 +282,10 @@ function AuthPage() {
     setSubmittingForm(true);
 
     try {
-      // IMPORTANT: Ensure your backend is running at http://localhost:8000
+      // IMPORTANT: Ensure your backend is running at https://examify-hfzs.onrender.com
       const endpoint = isLogin
-        ? "http://localhost:8000/api/auth/login"
-        : "http://localhost:8000/api/auth/register";
+        ? "https://examify-hfzs.onrender.com/api/auth/login"
+        : "https://examify-hfzs.onrender.com/api/auth/register";
 
       const response = await axios.post(endpoint, formData);
       window.alert(
