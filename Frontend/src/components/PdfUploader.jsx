@@ -2,7 +2,12 @@ import React, { useState } from "react";
 import axios from "axios";
 import { FiUploadCloud, FiRefreshCw, FiFile, FiXCircle } from "react-icons/fi";
 
-const PdfUploader = ({ onQuestionsReady, numQuestions, timeDuration, difficulty }) => {
+const PdfUploader = ({
+  onQuestionsReady,
+  numQuestions,
+  timeDuration,
+  difficulty,
+}) => {
   const [file, setFile] = useState(null);
   const [extractedText, setExtractedText] = useState("");
   const [error, setError] = useState("");
@@ -55,7 +60,8 @@ const PdfUploader = ({ onQuestionsReady, numQuestions, timeDuration, difficulty 
     } catch (err) {
       console.error("PDF upload or question generation error:", err);
       setError(
-        err.response?.data?.error || "Error uploading file or generating questions."
+        err.response?.data?.error ||
+          "Error uploading file or generating questions."
       );
       setExtractedText("");
       setGeneratedMcqsCount(0);
@@ -101,10 +107,11 @@ const PdfUploader = ({ onQuestionsReady, numQuestions, timeDuration, difficulty 
         <button
           type="submit"
           disabled={loading || !file}
-          className={`w-full py-3 px-6 rounded-lg text-white font-semibold transition duration-300 ease-in-out ${loading || !file
+          className={`w-full py-3 px-6 rounded-lg text-white font-semibold transition duration-300 ease-in-out ${
+            loading || !file
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-purple-500 hover:bg-purple-700 shadow-md"
-            }`}
+          }`}
         >
           {loading ? "Processing PDF..." : "Upload & Generate Test"}
         </button>
