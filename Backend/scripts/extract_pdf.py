@@ -48,7 +48,7 @@ def generate_mcqs_from_text(text_content, num_questions):
         print("ERROR: GEMINI_API_KEY environment variable not set.", file=sys.stderr)
         return {"error": "API key missing"}
 
-    api_url = f"https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash-lite:generateContent?key={api_key}"
+    api_url = f"https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key={api_key}"
 
     # --- CHANGE: Dynamic number of questions in the prompt ---
     prompt = (
