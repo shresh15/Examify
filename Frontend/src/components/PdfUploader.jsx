@@ -45,8 +45,8 @@ const PdfUploader = ({
       console.log("Sending request to server...");
 
       const response = await axios.post(
-        // "https://examify-hfzs.onrender.com/api/upload-pdf",
-        "http://localhost:8000/api/upload-pdf",
+        "https://examify-hfzs.onrender.com/api/upload-pdf",
+        //"http://localhost:8000/api/upload-pdf",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -77,12 +77,14 @@ const PdfUploader = ({
         if (err.response.data && err.response.data.error) {
           errorMessage = `Server Error: ${err.response.data.error}`;
         } else if (err.response.status === 500) {
-          errorMessage = "Internal Server Error. Check Backend Logs (Render Dashboard).";
+          errorMessage =
+            "Internal Server Error. Check Backend Logs (Render Dashboard).";
         }
       } else if (err.request) {
         // The request was made but no response was received
         console.error("No response received (Timeout or Network Error)");
-        errorMessage = "Server is taking too long to respond. The AI generation timed out.";
+        errorMessage =
+          "Server is taking too long to respond. The AI generation timed out.";
       } else {
         errorMessage = err.message;
       }
@@ -132,12 +134,15 @@ const PdfUploader = ({
         <button
           type="submit"
           disabled={loading || !file}
-          className={`w-full py-3 px-6 rounded-lg text-white font-semibold transition duration-300 ease-in-out ${loading || !file
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-purple-500 hover:bg-purple-700 shadow-md"
-            }`}
+          className={`w-full py-3 px-6 rounded-lg text-white font-semibold transition duration-300 ease-in-out ${
+            loading || !file
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-purple-500 hover:bg-purple-700 shadow-md"
+          }`}
         >
-          {loading ? "Processing (This may take 30s+)..." : "Upload & Generate Test"}
+          {loading
+            ? "Processing (This may take 30s+)..."
+            : "Upload & Generate Test"}
         </button>
       </form>
 
