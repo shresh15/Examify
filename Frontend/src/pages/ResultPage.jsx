@@ -96,7 +96,8 @@ const ResultPage = () => {
         [index]: true,
       }));
 
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      // Using free model gemini-2.5-flash
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
       const prompt = `Question: ${question}
 User Answer: ${userAnswer || "Not answered"}
 Correct Answer: ${correctAnswer}
@@ -213,11 +214,10 @@ Task:
             return (
               <div
                 key={index}
-                className={`p-4 rounded-lg shadow-sm border ${
-                  isCorrect
+                className={`p-4 rounded-lg shadow-sm border ${isCorrect
                     ? "border-green-300 bg-green-50"
                     : "border-red-300 bg-red-50"
-                }`}
+                  }`}
               >
                 <p className="font-semibold text-gray-900 mb-1">
                   Q{index + 1}: {q.question}
@@ -225,9 +225,8 @@ Task:
                 <p className="text-gray-700 text-sm">
                   Your answer:{" "}
                   <span
-                    className={`font-medium ${
-                      isCorrect ? "text-green-700" : "text-red-700"
-                    }`}
+                    className={`font-medium ${isCorrect ? "text-green-700" : "text-red-700"
+                      }`}
                   >
                     {userAnswer
                       ? `${userAnswer}. ${selectedOptionText}`

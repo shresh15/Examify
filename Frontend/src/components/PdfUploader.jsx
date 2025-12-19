@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { FiUploadCloud, FiRefreshCw, FiFile, FiXCircle } from "react-icons/fi";
+// import { FiUploadCloud, FiRefreshCw, FiFile, FiXCircle } from "react-icons/fi"; // Uncomment if you have these icons installed
 
 const PdfUploader = ({
   onQuestionsReady,
-  numQuestions,
-  timeDuration,
-  difficulty,
+  numQuestions = 5, // Set default values to prevent undefined errors
+  timeDuration = 10,
+  difficulty = "Medium",
 }) => {
   const [file, setFile] = useState(null);
   const [extractedText, setExtractedText] = useState("");
@@ -36,19 +36,25 @@ const PdfUploader = ({
 
     const formData = new FormData();
     formData.append("pdf", file);
+    // Ensure these are converted to strings/numbers correctly for the backend
     formData.append("numQuestions", numQuestions);
-    // --- THIS IS THE CRITICAL LINE TO VERIFY ---
     formData.append("timeDuration", timeDuration);
     formData.append("difficulty", difficulty);
 
     try {
+      console.log("Sending request to server...");
+
       const response = await axios.post(
-        "https://examify-hfzs.onrender.com/api/upload-pdf",
+        // "https://examify-hfzs.onrender.com/api/upload-pdf",
+        "http://localhost:8000/api/upload-pdf",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
+          timeout: 120000, // INCREASED TIMEOUT to 2 minutes (120000ms) for AI generation
         }
       );
+
+      console.log("Server Response:", response.data); // Log success data
 
       setExtractedText(response.data.text || "");
       const questions = response.data.questions || [];
@@ -58,11 +64,30 @@ const PdfUploader = ({
         onQuestionsReady(questions);
       }
     } catch (err) {
-      console.error("PDF upload or question generation error:", err);
-      setError(
-        err.response?.data?.error ||
-          "Error uploading file or generating questions."
-      );
+      console.error("FULL ERROR OBJECT:", err); // Log the full error to Console
+
+      let errorMessage = "Error uploading file or generating questions.";
+
+      if (err.response) {
+        // The server responded with a status code that falls out of the range of 2xx
+        console.error("Server Error Data:", err.response.data);
+        console.error("Server Status:", err.response.status);
+
+        // Try to extract the specific error message from backend
+        if (err.response.data && err.response.data.error) {
+          errorMessage = `Server Error: ${err.response.data.error}`;
+        } else if (err.response.status === 500) {
+          errorMessage = "Internal Server Error. Check Backend Logs (Render Dashboard).";
+        }
+      } else if (err.request) {
+        // The request was made but no response was received
+        console.error("No response received (Timeout or Network Error)");
+        errorMessage = "Server is taking too long to respond. The AI generation timed out.";
+      } else {
+        errorMessage = err.message;
+      }
+
+      setError(errorMessage);
       setExtractedText("");
       setGeneratedMcqsCount(0);
     } finally {
@@ -107,18 +132,20 @@ const PdfUploader = ({
         <button
           type="submit"
           disabled={loading || !file}
-          className={`w-full py-3 px-6 rounded-lg text-white font-semibold transition duration-300 ease-in-out ${
-            loading || !file
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-purple-500 hover:bg-purple-700 shadow-md"
-          }`}
+          className={`w-full py-3 px-6 rounded-lg text-white font-semibold transition duration-300 ease-in-out ${loading || !file
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-purple-500 hover:bg-purple-700 shadow-md"
+            }`}
         >
-          {loading ? "Processing PDF..." : "Upload & Generate Test"}
+          {loading ? "Processing (This may take 30s+)..." : "Upload & Generate Test"}
         </button>
       </form>
 
       {error && (
-        <p className="mt-4 text-red-600 font-medium text-center">{error}</p>
+        <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded w-full text-center">
+          <p className="font-bold">Error:</p>
+          <p>{error}</p>
+        </div>
       )}
 
       {(extractedText || generatedMcqsCount > 0) && !error && (

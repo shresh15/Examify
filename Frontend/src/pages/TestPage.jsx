@@ -297,53 +297,57 @@ const TestPage = () => {
             })}
           </div>
 
-          <div className="mt-auto pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center flex-wrap gap-4">
-            <div className="flex space-x-4">
-              {currentQuestionIndex > 0 && (
-                <button
-                  onClick={() => setCurrentQuestionIndex((prev) => prev - 1)}
-                  className="bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 px-7 py-3 rounded-lg shadow-md hover:bg-gray-400 dark:hover:bg-gray-500 transition duration-300 font-semibold flex items-center space-x-2"
-                >
-                  <span>Previous</span>
-                </button>
-              )}
-
-              <button
-                onClick={handleMarkForReview}
-                className={`px-7 py-3 rounded-lg shadow-md transition duration-300 font-semibold flex items-center space-x-2 ${
-                  markedForReview[currentQuestionIndex]
-                    ? "bg-red-400 text-white hover:bg-red-600"
-                    : "bg-purple-500 text-white hover:bg-purple-600"
-                }`}
-              >
-                {markedForReview[currentQuestionIndex] ? (
-                  <>
-                    <XCircle size={18} />
-                    <span>Unmark Review</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Mark for Review</span>
-                  </>
+          <div className="mt-auto pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
+              <div className="flex flex-wrap gap-4">
+                {currentQuestionIndex > 0 && (
+                  <button
+                    onClick={() => setCurrentQuestionIndex((prev) => prev - 1)}
+                    className="bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 px-6 py-3 rounded-lg shadow-md hover:bg-gray-400 dark:hover:bg-gray-500 transition duration-300 font-semibold flex items-center justify-center min-w-[120px]"
+                  >
+                    <span>Previous</span>
+                  </button>
                 )}
-              </button>
-            </div>
 
-            {currentQuestionIndex < questions.length - 1 ? (
-              <button
-                onClick={() => setCurrentQuestionIndex((prev) => prev + 1)}
-                className="bg-blue-600 text-white px-7 py-3 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 font-semibold flex items-center space-x-2 ml-auto"
-              >
-                <span>Next</span>
-              </button>
-            ) : (
-              <button
-                onClick={() => setShowSubmitConfirmation(true)} // Show modal on final submit
-                className="bg-blue-800 cursor-pointer text-white px-7 py-3 rounded-lg shadow-md hover:bg-blue-900 transition duration-300 font-semibold flex items-center space-x-2 ml-auto"
-              >
-                <span>Submit Test</span>
-              </button>
-            )}
+                <button
+                  onClick={handleMarkForReview}
+                  className={`px-6 py-3 rounded-lg shadow-md transition duration-300 font-semibold flex items-center justify-center space-x-2 min-w-[150px] ${
+                    markedForReview[currentQuestionIndex]
+                      ? "bg-red-400 text-white hover:bg-red-600"
+                      : "bg-purple-500 text-white hover:bg-purple-600"
+                  }`}
+                >
+                  {markedForReview[currentQuestionIndex] ? (
+                    <>
+                      <XCircle size={18} />
+                      <span>Unmark Review</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Mark for Review</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="flex justify-end">
+                {currentQuestionIndex < questions.length - 1 ? (
+                  <button
+                    onClick={() => setCurrentQuestionIndex((prev) => prev + 1)}
+                    className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 font-semibold flex items-center justify-center min-w-[120px]"
+                  >
+                    <span>Next</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setShowSubmitConfirmation(true)}
+                    className="bg-blue-800 cursor-pointer text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-900 transition duration-300 font-semibold flex items-center justify-center min-w-[120px]"
+                  >
+                    <span>Submit Test</span>
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
