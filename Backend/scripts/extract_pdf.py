@@ -31,15 +31,11 @@ def generate_mcqs_from_text(text_content, num_questions):
     if not api_key:
         return {"error": "GEMINI_API_KEY not found in environment variables."}
 
-<<<<<<< Updated upstream
-    api_url = f"https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key={api_key}"
-=======
     # STABLE API ENDPOINT AND MODEL NAME
     # Using 'v1' instead of 'v1beta' for better reliability
     # Using gemini-2.5-flash which is free and available
     model_name = "gemini-2.5-flash" 
     api_url = f"https://generativelanguage.googleapis.com/v1/models/{model_name}:generateContent?key={api_key}"
->>>>>>> Stashed changes
 
     # Refined prompt for better JSON consistency
     prompt = (
