@@ -4,21 +4,23 @@ import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+// Initialize once outside the component to avoid recreating on every render
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+
 const ResultPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
   const [openExplanations, setOpenExplanations] = useState({});
   const [generatedExplanations, setGeneratedExplanations] = useState({});
+  const [loadingExplanations, setLoadingExplanations] = useState({});
 
-  // Use a ref to track if the record has been saved
   const hasSavedRecord = useRef(false);
 
   const { questions, userAnswers, score, timeDuration, timeTakenInSeconds } =
     location.state || {};
 
   useEffect(() => {
-    // 💡 Check if the record has already been saved to prevent duplicates
     if (!hasSavedRecord.current && questions && questions.length > 0) {
       let currentRecords = JSON.parse(localStorage.getItem("testRecords"));
 
@@ -42,7 +44,6 @@ const ResultPage = () => {
       const updatedRecords = [...currentRecords, newRecord];
       localStorage.setItem("testRecords", JSON.stringify(updatedRecords));
 
-      // Set the flag to true so the effect doesn't run again
       hasSavedRecord.current = true;
     }
   }, [questions, score, timeTakenInSeconds, timeDuration]);
@@ -78,15 +79,18 @@ const ResultPage = () => {
   };
 
   const getOptionLetter = (index) => String.fromCharCode(65 + index);
-  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
   const generateExplanation = async (
     index,
     question,
-    userAnswer,
-    correctAnswer
+    userAnswerFormatted,
+    correctAnswerFormatted,
   ) => {
+    // Prevent duplicate API calls if already loading
+    if (loadingExplanations[index]) return;
+
     try {
+      setLoadingExplanations((prev) => ({ ...prev, [index]: true }));
       setGeneratedExplanations((prev) => ({
         ...prev,
         [index]: "Generating explanation...",
@@ -96,16 +100,18 @@ const ResultPage = () => {
         [index]: true,
       }));
 
-      // Using free model gemini-2.5-flash
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+      // Uses gemini-3.5-flash-lite so it has a separate free-tier quota from gemini-3.8-flash
+      const model = genAI.getGenerativeModel({
+        model: "gemini-3.5-flash-lite",
+      });
+
       const prompt = `Question: ${question}
-User Answer: ${userAnswer || "Not answered"}
-Correct Answer: ${correctAnswer}
+User's Incorrect Answer: ${userAnswerFormatted || "Not answered"}
+Correct Answer: ${correctAnswerFormatted}
 Task:
-- If the user's answer is correct, explain why this answer is correct.
-- If the user's answer is incorrect, explain why the user's answer is wrong and then explain why the correct answer is right.
-- Give a short, clear, and helpful explanation so the learner understands the concept better.
-- Do not use markdown formatting like ** or bullet points. Keep it as a simple paragraph.`;
+- Explain briefly why the user's selected answer is incorrect (or clarify the concept if unanswered) and why the correct answer is right.
+- Keep it concise, clear, and helpful (2-4 sentences).
+- Do not use markdown formatting like ** or bullet points. Keep it as a single plain paragraph.`;
 
       const result = await model.generateContent(prompt);
       const response = await result.response;
@@ -119,8 +125,20 @@ Task:
       console.error("Error generating explanation:", error);
       setGeneratedExplanations((prev) => ({
         ...prev,
-        [index]: "⚠️ Failed to generate explanation. Please try again.",
+        [index]: " Failed to generate explanation. Please try again.",
       }));
+      // Clear failed state so the user can retry on next click
+      setTimeout(() => {
+        setGeneratedExplanations((prev) => {
+          const updated = { ...prev };
+          if (updated[index]?.startsWith("⚠️")) {
+            delete updated[index];
+          }
+          return updated;
+        });
+      }, 3000);
+    } finally {
+      setLoadingExplanations((prev) => ({ ...prev, [index]: false }));
     }
   };
 
@@ -193,12 +211,13 @@ Task:
             Detailed Review
           </h3>
           {questions.map((q, index) => {
-            const userAnswer = userAnswers[index];
+            const userAnswer = userAnswers?.[index];
             const isCorrect =
               userAnswer &&
               userAnswer.toUpperCase() === q.correct_answer.toUpperCase();
+
             const selectedOptionIndex = q.options.findIndex(
-              (opt, i) => getOptionLetter(i) === userAnswer
+              (opt, i) => getOptionLetter(i) === userAnswer?.toUpperCase(),
             );
             const selectedOptionText =
               selectedOptionIndex !== -1
@@ -206,18 +225,24 @@ Task:
                 : null;
 
             const correctOptionIndex = q.options.findIndex(
-              (opt, i) => getOptionLetter(i) === q.correct_answer
+              (opt, i) => getOptionLetter(i) === q.correct_answer.toUpperCase(),
             );
             const correctOptionText =
               correctOptionIndex !== -1 ? q.options[correctOptionIndex] : null;
 
+            const formattedUserAnswer = userAnswer
+              ? `${userAnswer}. ${selectedOptionText}`
+              : "No answer selected";
+            const formattedCorrectAnswer = `${q.correct_answer}. ${correctOptionText}`;
+
             return (
               <div
                 key={index}
-                className={`p-4 rounded-lg shadow-sm border ${isCorrect
+                className={`p-4 rounded-lg shadow-sm border ${
+                  isCorrect
                     ? "border-green-300 bg-green-50"
                     : "border-red-300 bg-red-50"
-                  }`}
+                }`}
               >
                 <p className="font-semibold text-gray-900 mb-1">
                   Q{index + 1}: {q.question}
@@ -225,48 +250,54 @@ Task:
                 <p className="text-gray-700 text-sm">
                   Your answer:{" "}
                   <span
-                    className={`font-medium ${isCorrect ? "text-green-700" : "text-red-700"
-                      }`}
+                    className={`font-medium ${
+                      isCorrect ? "text-green-700" : "text-red-700"
+                    }`}
                   >
-                    {userAnswer
-                      ? `${userAnswer}. ${selectedOptionText}`
-                      : "No answer selected"}
+                    {formattedUserAnswer}
                   </span>
                 </p>
                 <p className="text-gray-700 text-sm">
                   Correct answer:{" "}
                   <span className="font-medium text-green-700">
-                    {q.correct_answer}. {correctOptionText}
+                    {formattedCorrectAnswer}
                   </span>
                 </p>
-                <div className="mt-4 border-t pt-3">
-                  <button
-                    onClick={() => {
-                      if (generatedExplanations[index]) {
-                        toggleExplanation(index);
-                      } else {
-                        generateExplanation(
-                          index,
-                          q.question,
-                          userAnswer,
-                          correctOptionText
-                        );
-                      }
-                    }}
-                    className="text-indigo-600 hover:text-indigo-800 font-semibold text-sm transition-colors duration-200 focus:outline-none"
-                  >
-                    {generatedExplanations[index]
-                      ? openExplanations[index]
-                        ? "Hide Explanation"
-                        : "Show Explanation"
-                      : "View Explanation"}
-                  </button>
-                  {openExplanations[index] && (
-                    <div className="mt-2 p-3 bg-white border border-indigo-200 rounded-md text-gray-800 text-sm whitespace-pre-line">
-                      {generatedExplanations[index]}
-                    </div>
-                  )}
-                </div>
+
+                {/* Render explanation button ONLY for wrong or unanswered questions */}
+                {!isCorrect && (
+                  <div className="mt-4 border-t border-red-200 pt-3">
+                    <button
+                      disabled={loadingExplanations[index]}
+                      onClick={() => {
+                        if (generatedExplanations[index]) {
+                          toggleExplanation(index);
+                        } else {
+                          generateExplanation(
+                            index,
+                            q.question,
+                            formattedUserAnswer,
+                            formattedCorrectAnswer,
+                          );
+                        }
+                      }}
+                      className="text-indigo-600 hover:text-indigo-800 disabled:text-gray-400 font-semibold text-sm transition-colors duration-200 focus:outline-none"
+                    >
+                      {loadingExplanations[index]
+                        ? "Generating..."
+                        : generatedExplanations[index]
+                          ? openExplanations[index]
+                            ? "Hide Explanation"
+                            : "Show Explanation"
+                          : "Explain Mistake"}
+                    </button>
+                    {openExplanations[index] && (
+                      <div className="mt-2 p-3 bg-white border border-indigo-200 rounded-md text-gray-800 text-sm whitespace-pre-line">
+                        {generatedExplanations[index]}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
